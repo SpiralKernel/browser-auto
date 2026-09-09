@@ -11,7 +11,7 @@
 - Windows：双击 `run.bat`
 - macOS / Linux：在项目目录运行 `./run.sh`
 
-首次启动只会询问学习平台账号和密码，然后自动安装 Playwright、下载专用 Chromium，并开始处理课程。课程网址和课程图 ID 已内置为全班共用的默认值。账号配置只写入本机 `config.local.json`；该文件已被 Git 忽略，密码输入时显示为 `*`。
+首次启动只会询问学习平台账号和密码，然后自动安装 Playwright、下载专用 Chromium，并开始处理课程。课程网址和课程图 ID 已内置为全班共用的默认值。账号配置只写入本机 `config.local.json`；该文件已被 Git 忽略，密码输入时不会回显字符，输入完成后按回车即可。
 
 ## 常用方式
 
