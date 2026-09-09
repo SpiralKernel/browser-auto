@@ -1,34 +1,27 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const { Writable } = require('stream');
+
+let hideInput = false;
+const safeOutput = new Writable({
+  write(chunk, encoding, callback) {
+    if (!hideInput) process.stdout.write(chunk, encoding);
+    callback();
+  },
+});
+const rl = readline.createInterface({ input: process.stdin, output: safeOutput, terminal: Boolean(process.stdin.isTTY) });
 const ask = (question) => new Promise((resolve) => rl.question(question, (answer) => resolve(answer.trim())));
 async function askPassword(question) {
-  if (!process.stdin.isTTY || !process.stdout.isTTY) return ask(question);
-  rl.pause();
+  if (!process.stdin.isTTY) return ask(question);
   process.stdout.write(question);
-  readline.emitKeypressEvents(process.stdin);
-  process.stdin.setRawMode(true);
-  let value = '';
+  hideInput = true;
   return new Promise((resolve) => {
-    const onKey = (str, key) => {
-      if (key && (key.name === 'return' || key.name === 'enter')) {
-        process.stdin.setRawMode(false);
-        process.stdin.removeListener('keypress', onKey);
-        process.stdout.write('\n');
-        rl.resume();
-        resolve(value);
-      } else if (key && key.name === 'backspace') {
-        if (value) { value = value.slice(0, -1); process.stdout.write('\b \b'); }
-      } else if (key && key.ctrl && key.name === 'c') {
-        process.stdin.setRawMode(false);
-        process.exit(130);
-      } else if (str && !key.ctrl && !key.meta) {
-        value += str;
-        process.stdout.write('*');
-      }
-    };
-    process.stdin.on('keypress', onKey);
+    rl.question('', (answer) => {
+      hideInput = false;
+      process.stdout.write('\n');
+      resolve(answer);
+    });
   });
 }
 (async () => {
