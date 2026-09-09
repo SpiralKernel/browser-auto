@@ -15,7 +15,10 @@ export npm_config_cache="$PWD/.npm-cache"
 mkdir -p .pw-browsers .npm-cache
 
 if [ ! -f config.local.json ] && { [ -z "${COURSE_USERNAME:-}" ] || [ -z "${COURSE_PASSWORD:-}" ]; }; then
-  node setup.js
+  if ! node setup.js; then
+    echo "[init] 配置失败，已停止启动。"
+    exit 1
+  fi
 fi
 
 # 去掉可能配置错/已失效的代理（这台机器就是死代理导致下载失败）
