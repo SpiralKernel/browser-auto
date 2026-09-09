@@ -12,15 +12,18 @@ set npm_config_cache=%CD%\.npm-cache
 if not exist .pw-browsers mkdir .pw-browsers
 if not exist .npm-cache mkdir .npm-cache
 
-if not exist config.local.json (
-  if not defined COURSE_USERNAME (
-    node setup.js
-    if errorlevel 1 (
-      pause
-      exit /b 1
-    )
-  )
+if not exist config.local.json if not defined COURSE_USERNAME goto setup_config
+if not exist config.local.json if not defined COURSE_PASSWORD goto setup_config
+goto config_done
+
+:setup_config
+node setup.js
+if errorlevel 1 (
+  pause
+  exit /b 1
 )
+
+:config_done
 
 REM 去掉可能失效的代理
 set http_proxy=
