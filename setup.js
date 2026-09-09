@@ -35,13 +35,9 @@ async function askPassword(question) {
   console.log('\n首次运行配置（仅保存在本机，不会提交到 Git）\n');
   const username = await ask('学习平台账号：');
   const password = await askPassword('学习平台密码：');
-  const courseUrl = await ask('任意一个课程详情页的完整网址：');
   rl.close();
-  const graphMatch = courseUrl.match(/[?&]graphId=(\d+)/);
-  const idMatch = courseUrl.match(/[?&]id=(\d+)/);
   if (!username || !password) throw new Error('账号和密码不能为空。');
-  if (!/^https:\/\/sysks\.cau\.edu\.cn\/students\/courseDetail\?/.test(courseUrl) || !graphMatch || !idMatch) throw new Error('课程网址格式不正确，应来自 sysks.cau.edu.cn 的课程详情页，并包含 graphId 和 id。');
   const target = path.join(__dirname, 'config.local.json');
-  fs.writeFileSync(target, `${JSON.stringify({ username, password, courseUrl, graphId: graphMatch[1] }, null, 2)}\n`, { mode: 0o600 });
+  fs.writeFileSync(target, `${JSON.stringify({ username, password }, null, 2)}\n`, { mode: 0o600 });
   console.log('\n配置完成，继续启动。');
 })().catch((error) => { rl.close(); console.error(`\n配置失败：${error.message}`); process.exit(1); });
