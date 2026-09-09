@@ -11,7 +11,7 @@
 - Windows：双击 `run.bat`
 - macOS / Linux：在项目目录运行 `./run.sh`
 
-首次启动会询问账号、密码和课程详情页网址，然后自动安装 Playwright、下载专用 Chromium，并开始处理课程。账号配置只写入本机 `config.local.json`；该文件已被 Git 忽略，密码输入时显示为 `*`。
+首次启动只会询问学习平台账号和密码，然后自动安装 Playwright、下载专用 Chromium，并开始处理课程。课程网址和课程图 ID 已内置为全班共用的默认值。账号配置只写入本机 `config.local.json`；该文件已被 Git 忽略，密码输入时显示为 `*`。
 
 ## 常用方式
 
@@ -26,7 +26,7 @@ node check_completion.js        # 检查完成情况
 
 Windows 可先在命令提示符执行 `set HEADED=1` 等设置，再运行 `run.bat`。重新填写账号或课程时，删除本机的 `config.local.json`，再启动一次。
 
-也可通过 `COURSE_USERNAME`、`COURSE_PASSWORD`、`COURSE_URL` 和可选的 `GRAPH_ID` 环境变量临时提供配置。
+也可通过 `COURSE_USERNAME`、`COURSE_PASSWORD` 环境变量临时提供账号；`COURSE_URL` 和 `GRAPH_ID` 仅用于需要覆盖默认课程时。
 
 ## 运行模式
 
