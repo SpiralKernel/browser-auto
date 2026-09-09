@@ -14,7 +14,7 @@ export PLAYWRIGHT_BROWSERS_PATH="$PWD/.pw-browsers"
 export npm_config_cache="$PWD/.npm-cache"
 mkdir -p .pw-browsers .npm-cache
 
-if [ ! -f config.local.json ] && { [ -z "${COURSE_USERNAME:-}" ] || [ -z "${COURSE_PASSWORD:-}" ] || [ -z "${COURSE_URL:-}" ]; }; then
+if [ ! -f config.local.json ] && { [ -z "${COURSE_USERNAME:-}" ] || [ -z "${COURSE_PASSWORD:-}" ]; }; then
   node setup.js
 fi
 
