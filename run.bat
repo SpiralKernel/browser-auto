@@ -1,26 +1,18 @@
 @echo off
-setlocal
+setlocal EnableExtensions
 chcp 65001 >nul
-title CAU 实验室安全课程自动学习工具
+title CAU Course Automation
 cd /d "%~dp0"
 
 echo ========================================
-echo   CAU 实验室安全课程自动学习工具
+echo   CAU Course Automation
 echo ========================================
 echo.
 
 where node >nul 2>nul
-if errorlevel 1 (
-  echo [错误] 未检测到 Node.js。
-  echo 请先安装 Node.js LTS：https://nodejs.org/
-  echo 安装完成后关闭此窗口，再双击 run.bat。
-  goto failed
-)
+if errorlevel 1 goto no_node
 where npm >nul 2>nul
-if errorlevel 1 (
-  echo [错误] 找不到 npm，请重新安装 Node.js LTS。
-  goto failed
-)
+if errorlevel 1 goto no_npm
 
 set "PLAYWRIGHT_BROWSERS_PATH=%CD%\.pw-browsers"
 set "npm_config_cache=%CD%\.npm-cache"
@@ -33,13 +25,9 @@ goto config_done
 
 :setup_config
 node setup.js
-if errorlevel 1 (
-  echo [错误] 账号密码配置失败。
-  goto failed
-)
+if errorlevel 1 goto setup_failed
 
 :config_done
-REM 校内课程站点在部分代理环境下无法访问，默认清除终端代理变量。
 set http_proxy=
 set https_proxy=
 set HTTP_PROXY=
@@ -47,24 +35,17 @@ set HTTPS_PROXY=
 set all_proxy=
 set ALL_PROXY=
 
-if not exist "node_modules\playwright\package.json" (
-  echo.
-  echo [安装 1/2] 正在安装 Playwright，请不要关闭窗口……
-  call npm install
-  if errorlevel 1 (
-    echo [错误] Playwright 安装失败，请检查网络后重试。
-    goto failed
-  )
-) else (
-  echo [安装 1/2] Playwright 已安装。
-)
+if exist "node_modules\playwright\package.json" goto dependencies_ready
+echo.
+echo [Setup 1/2] Installing Playwright. Do not close this window...
+call npm install
+if errorlevel 1 goto npm_failed
 
-echo [安装 2/2] 正在检查 Chromium，首次运行需要下载数百 MB……
+:dependencies_ready
+echo [Setup 1/2] Playwright is ready.
+echo [Setup 2/2] Checking Chromium. The first download is several hundred MB...
 call npx playwright install chromium
-if errorlevel 1 (
-  echo [错误] Chromium 下载失败，请检查网络后重试。
-  goto failed
-)
+if errorlevel 1 goto chromium_failed
 
 if not defined RATE set RATE=8
 if not defined HEADED set HEADED=0
@@ -72,24 +53,51 @@ if not defined MODE set MODE=all
 if not defined DRY set DRY=0
 
 echo.
-echo [运行] RATE=%RATE%  HEADED=%HEADED%  MODE=%MODE%
-echo 运行期间请不要关闭此窗口。
+echo [Run] RATE=%RATE%  HEADED=%HEADED%  MODE=%MODE%
+echo Keep this window open while the script is running.
 echo.
 node run.js
-if errorlevel 1 (
-  echo.
-  echo [错误] 程序运行失败，请保留上方错误信息以便排查。
-  goto failed
-)
+if errorlevel 1 goto run_failed
 
 echo.
-echo [完成] 程序已正常结束。
-echo 按任意键关闭窗口……
+echo [Done] The program finished normally.
+goto success
+
+:no_node
+echo [Error] Node.js was not found.
+echo Install the Node.js LTS release from https://nodejs.org/
+echo Then close this window and run run.bat again.
+goto failed
+
+:no_npm
+echo [Error] npm was not found. Reinstall Node.js LTS.
+goto failed
+
+:setup_failed
+echo [Error] Account setup failed.
+goto failed
+
+:npm_failed
+echo [Error] npm install failed. Check the network and try again.
+goto failed
+
+:chromium_failed
+echo [Error] Chromium download failed. Check the network and try again.
+goto failed
+
+:run_failed
+echo.
+echo [Error] The program failed. Keep the error text above for troubleshooting.
+goto failed
+
+:success
+echo.
+echo Press any key to close this window...
 pause >nul
 exit /b 0
 
 :failed
 echo.
-echo 按任意键关闭窗口……
+echo Press any key to close this window...
 pause >nul
 exit /b 1
