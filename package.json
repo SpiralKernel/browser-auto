@@ -1,0 +1,17 @@
+{
+  "name": "browser-auto",
+  "version": "1.0.0",
+  "description": "CAU 实验室安全课程浏览器自动化工具",
+  "main": "run.js",
+  "scripts": {
+    "setup": "node setup.js",
+    "start": "node run.js",
+    "check": "node check_completion.js",
+    "test": "node --check run.js && node --check setup.js && node --check check_completion.js"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}
