@@ -1,57 +1,130 @@
 # CAU 实验室安全课程自动学习工具
 
-基于 Playwright 的浏览器自动化脚本：登录学习平台、读取课程列表、播放未完成的视频，并处理视频中的弹题。
+自动登录 CAU 实验室安全学习平台，读取课程列表，依次播放未完成的视频并处理视频弹题。重复运行时会跳过已经完成的课程。
 
-> 请只在你有权使用的账号和课程中运行，并遵守学校规定。平台页面或接口变化后，脚本可能需要更新。
+## 一、下载前准备
 
-## 最简单的用法
+电脑需要安装 **Node.js 18 或更高版本**，推荐安装官网的 LTS 版：<https://nodejs.org/>
 
-先安装 [Node.js LTS](https://nodejs.org/)，再下载并解压本项目。
+安装后打开终端或命令提示符，输入下面的命令确认安装成功：
 
-- Windows：双击 `run.bat`
-- macOS / Linux：在项目目录运行 `./run.sh`
-
-首次启动只会询问学习平台账号和密码，然后自动安装 Playwright、下载专用 Chromium，并开始处理课程。课程网址和课程图 ID 已内置为全班共用的默认值。账号配置只写入本机 `config.local.json`；该文件已被 Git 忽略，密码输入时不会回显字符，输入完成后按回车即可。
-
-## 常用方式
-
-```bash
-./run.sh                        # 默认无界面、8 倍速
-HEADED=1 ./run.sh               # 显示浏览器窗口
-RATE=4 ./run.sh                 # 使用 4 倍速
-DRY=1 ./run.sh                  # 只列课程，不播放
-MODE=section SECTION=水电安全 ./run.sh
-node check_completion.js        # 检查完成情况
+```text
+node -v
 ```
 
-Windows 可先在命令提示符执行 `set HEADED=1` 等设置，再运行 `run.bat`。重新填写账号或课程时，删除本机的 `config.local.json`，再启动一次。
+能够显示版本号即可，例如 `v22.0.0`。
 
-也可通过 `COURSE_USERNAME`、`COURSE_PASSWORD` 环境变量临时提供账号；`COURSE_URL` 和 `GRAPH_ID` 仅用于需要覆盖默认课程时。
+## 二、下载脚本
 
-## 运行模式
+点击仓库页面右上方绿色的 **Code** 按钮，选择 **Download ZIP**，下载后解压到任意文件夹。
 
-| 参数 | 说明 |
-|---|---|
-| `MODE=all` | 处理所有未完成课程（默认） |
-| `MODE=one` | 只处理配置网址中的课程 |
-| `MODE=section` | 只处理 `SECTION` 指定的章节 |
-| `MODE=ids` | 处理 `COURSE_IDS` 指定的逗号分隔 ID |
-| `DRY=1` | 只输出课程清单 |
-| `RATE=8` | 设置播放速度 |
-| `HEADED=1` | 显示浏览器窗口 |
-
-## 安全说明
-
-- 仓库不包含真实账号、密码、Cookie、运行日志或截图。
-- 不要强制添加 `config.local.json`、日志、截图、`node_modules` 或浏览器缓存。
-- 如果真实密码曾提交到别的仓库，仅删除文件并不够；还应修改密码并清理仓库历史。
-
-## 开发
+也可以使用 Git：
 
 ```bash
-npm install
-npx playwright install chromium
-npm test
+git clone https://github.com/SpiralKernel/browser-auto.git
+cd browser-auto
 ```
 
-核心文件为 `run.js`，完成情况检查为 `check_completion.js`，首次配置向导为 `setup.js`。
+## 三、首次运行
+
+### Windows
+
+进入解压后的文件夹，双击 `run.bat`。
+
+如果双击后窗口立即关闭，可以在文件夹地址栏输入 `cmd` 并按回车，然后运行：
+
+```bat
+run.bat
+```
+
+### macOS / Linux
+
+打开终端，进入解压后的目录，然后运行：
+
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+首次启动时会提示：
+
+```text
+学习平台账号：
+学习平台密码：
+```
+
+输入密码时屏幕不会显示字符，这是正常现象；输入完成后直接按回车。配置完成后，脚本会自动安装 Playwright、下载 Chromium 并开始运行。首次下载约数百 MB，所需时间取决于网络速度，以后运行无需重复下载。
+
+## 四、以后运行
+
+- Windows：再次双击 `run.bat`
+- macOS / Linux：进入项目目录后运行 `./run.sh`
+
+运行期间不要关闭终端。脚本会输出当前课程、播放进度、弹题处理情况和每节课的完成状态。全部处理结束后会打印汇总结果。
+
+如果中途退出，重新启动即可；已完成课程会被自动跳过。
+
+## 五、常用运行方式
+
+默认使用无界面模式和 8 倍速处理全部未完成课程。
+
+### macOS / Linux
+
+```bash
+./run.sh                                  # 默认运行
+HEADED=1 ./run.sh                         # 显示浏览器窗口
+RATE=4 ./run.sh                           # 改为 4 倍速
+DRY=1 ./run.sh                            # 只列出课程，不播放
+MODE=one ./run.sh                         # 只处理默认网址对应的课程
+MODE=section SECTION=水电安全 ./run.sh    # 只处理指定章节
+MODE=ids COURSE_IDS=课程ID1,课程ID2 ./run.sh  # 只处理指定课程
+```
+
+### Windows
+
+在项目文件夹地址栏输入 `cmd` 并按回车，再按需要执行：
+
+```bat
+run.bat
+
+set HEADED=1
+run.bat
+
+set RATE=4
+run.bat
+
+set DRY=1
+run.bat
+```
+
+关闭当前命令提示符窗口后，这些临时设置会自动失效。
+
+## 六、重新填写账号密码
+
+删除项目目录中的 `config.local.json`，然后重新运行 `run.bat` 或 `./run.sh`，程序就会再次询问账号和密码。
+
+## 七、常见问题
+
+### 输入密码时没有任何显示
+
+这是正常的密码隐藏效果。继续输入完整密码，然后按回车即可。
+
+### 提示 `node` 不是命令或找不到 `node`
+
+Node.js 尚未正确安装。安装 Node.js LTS 后关闭并重新打开终端，再运行脚本。
+
+### 首次安装或下载 Chromium 很慢
+
+首次运行需要下载依赖和浏览器，请耐心等待。如果长时间没有进度，检查网络连接后重新运行。
+
+### 出现 `ERR_CONNECTION_CLOSED` 或打不开课程网站
+
+先用普通浏览器打开课程网址测试网络。该校内站点在部分代理环境下无法访问，可暂时关闭代理后重新运行。
+
+### 想观察脚本具体操作
+
+使用显示浏览器模式：macOS/Linux 运行 `HEADED=1 ./run.sh`；Windows 先执行 `set HEADED=1`，再执行 `run.bat`。
+
+### 平台页面改版后无法运行
+
+网页结构或接口发生变化时，自动化脚本可能需要更新。先到 GitHub 下载最新版本再试。
