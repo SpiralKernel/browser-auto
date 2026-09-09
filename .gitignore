@@ -1,0 +1,8 @@
+node_modules/
+.pw-browsers/
+.npm-cache/
+config.local.json
+*.log
+*.png
+.DS_Store
+Thumbs.db
